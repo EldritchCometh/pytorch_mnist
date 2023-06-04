@@ -1,8 +1,6 @@
-import gzip
-import pickle
 import torch
 import torch.nn as nn
-import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
 
 
 class MNISTNet(nn.Module):
@@ -53,18 +51,24 @@ class Trainer:
             _, predicted = output.max(1)
             total_correct += (predicted == y_true).sum().item()
         print(f"Epoch {epoch + 1}/{epochs}, "
-              f"Loss: {total_loss / len(test_loader):.4f}, "
-              f"Accuracy: {total_correct / len(test_loader):.4f}")
+              f"Loss: {total_loss / len(self.test_loader):.4f}, "
+              f"Accuracy: {total_correct / len(self.test_loader):.4f}")
 
 
 if __name__ == "__main__":
 
-    model = MNISTNet()
-    with gzip.open('mnist_data.pkl.gz', 'rb') as f:
-        train_loader, test_loader = pickle.load(f)
+    model = MNISTNet().to('cuda')
+
+    # Create DataLoaders
+    batch_size = 128  # specify your desired batch size
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
     trainer = Trainer(model, train_loader, test_loader)
 
-    epochs = 5
+    # Define your criterion and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
-    trainer.train_network(epochs, criterion, optimizer)
+    optimizer = torch.optim.Adam(model.parameters())
+
+    # Start training
+    trainer.train_network(epochs=10, criterion=criterion, optimizer=optimizer)
