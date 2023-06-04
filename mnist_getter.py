@@ -1,6 +1,7 @@
 import gzip
 import torch
 import pickle
+from torch.utils.data import DataLoader
 from sklearn.datasets import fetch_openml
 from torch.utils.data import TensorDataset
 
@@ -31,7 +32,11 @@ y_test = torch.tensor(y_test, dtype=torch.long)
 train_data = TensorDataset(X_train, y_train)
 test_data = TensorDataset(X_test, y_test)
 
+# Create DataLoaders
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_data)
+
 # Dump it to the pickle
-data = (train_data, test_data)
+data = (train_loader, test_loader)
 with gzip.open("mnist_data.pkl.gz", 'wb') as f:
     pickle.dump(data, f)
