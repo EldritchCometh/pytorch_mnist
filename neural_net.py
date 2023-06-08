@@ -30,7 +30,7 @@ class Trainer:
         self.optimizer = optimizer
 
     def train_network(self, epochs, batch_size, learning_rate):
-        train_loader = DataLoader(self.train_data, batch_size=batch_size, shuffle=True)
+        train_loader = DataLoader(self.train_data, batch_size, True)
         test_loader = DataLoader(self.test_data)
         for g in self.optimizer.param_groups:
             g['lr'] = learning_rate
